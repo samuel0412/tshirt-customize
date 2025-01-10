@@ -1,5 +1,11 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
+
+import Slider from "rc-slider";
+import TShirtCanvas from "./TShirtCanvas";
+import { useDropzone } from "react-dropzone";
+import { Canvas, FabricImage, Control, util } from "fabric";
+import { motion } from "framer-motion";
 import {
   BackBig,
   BackImg,
@@ -20,15 +26,17 @@ import {
   TShirtImg,
   UploadImg,
 } from "../images";
-import Slider from "rc-slider";
-import TShirtCanvas from "./TShirtCanvas";
-import { useDropzone } from "react-dropzone";
 import { singleImageUpload } from "../utils/singleImageUpload";
-import ReactangleCanvas from "./Rectangle";
-
 const CustomizationModal = ({ show, setShow }) => {
   const [step, setStep] = useState(7);
   const [showUploadSection, setShowUploadSection] = useState(false);
+  const [uploadLoader, setUploadLoader] = useState(false);
+  const [uploadedUrl, setupLoadedUrl] = useState({});
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  const toggleZoom = () => {
+    setIsZoomed(!isZoomed);
+  };
   const nextStep = () => {
     setStep(step + 1);
   };
@@ -77,8 +85,6 @@ const CustomizationModal = ({ show, setShow }) => {
     }),
     [isFocused, isDragAccept, isDragReject]
   );
-  const [uploadLoader, setUploadLoader] = useState(false);
-  const [uploadedUrl, setupLoadedUrl] = useState({});
 
   const handleUpload = async () => {
     const dirName = "customTshirtLogo/";
@@ -93,6 +99,163 @@ const CustomizationModal = ({ show, setShow }) => {
       setUploadLoader(false);
     }
   };
+  const canvasRef = useRef(null);
+  const [canvas, setCanvas] = useState(null);
+  const [imageObj, setImageObj] = useState(null);
+  const [zoomValue, setZoomValue] = useState(50); // Default zoom value (in millimeters)
+  const deleteIcon =
+    "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
+
+  const deleteImg = new Image();
+  deleteImg.src = deleteIcon;
+  // Store the image object
+  useEffect(() => {
+    if (canvasRef.current) {
+      const initCanvas = new Canvas(canvasRef.current, {
+        width: 100,
+        height: 100,
+      });
+      initCanvas.renderAll();
+      setCanvas(initCanvas);
+
+      return () => {
+        initCanvas.dispose();
+      };
+    }
+  }, []);
+
+  // Custom delete control
+  const deleteControl = new Control({
+    x: 0.5,
+    y: -0.5,
+    offsetY: 16,
+    cursorStyle: "pointer",
+    mouseUpHandler: (eventData, transform) => {
+      const canvas = transform.target.canvas;
+      canvas.remove(transform.target);
+      canvas.requestRenderAll();
+    },
+    render: function (ctx, left, top, _styleOverride, fabricObject) {
+      const size = deleteControl.cornerSize || 24;
+      ctx.save();
+      ctx.translate(left, top);
+      ctx.rotate(util.degreesToRadians(fabricObject.angle));
+      ctx.drawImage(deleteImg, -size / 2, -size / 2, size, size);
+      ctx.restore();
+    },
+    cornerSize: 15,
+  });
+  // const zoomIn = (value) => {
+  //   if (imageObj) {
+  //     const scaleX = imageObj.scaleX;
+  //     const scaleY = imageObj.scaleY;
+
+  //     //new scale
+  //     const newScaleX = scaleX * 1.1;
+  //     const newScaleY = scaleY * 1.1;
+
+  //     //dimensions
+  //     const newWidth = imageObj.width * newScaleX;
+  //     const newHeight = imageObj.height * newScaleY;
+
+  //     // dimensions
+  //     const canvasWidth = canvas.getWidth();
+  //     const canvasHeight = canvas.getHeight();
+
+  //     // zoom limit === canvas size
+  //     if (newWidth <= canvasWidth && newHeight <= canvasHeight) {
+  //       imageObj.set({
+  //         scaleX: newScaleX,
+  //         scaleY: newScaleY,
+  //         left: imageObj.left - (imageObj.width * (newScaleX - scaleX)) / 2,
+  //         top: imageObj.top - (imageObj.height * (newScaleY - scaleY)) / 2,
+  //       });
+
+  //       canvas.renderAll();
+  //     }
+  //   }
+  // };
+
+  // const zoomOut = () => {
+  //   if (imageObj) {
+  //     const scaleX = imageObj.scaleX;
+  //     const scaleY = imageObj.scaleY;
+
+  //     const newScaleX = scaleX * 0.9;
+  //     const newScaleY = scaleY * 0.9;
+
+  //     // Update image scaling
+  //     imageObj.set({
+  //       scaleX: newScaleX,
+  //       scaleY: newScaleY,
+  //       left: imageObj.left + (imageObj.width * (scaleX - newScaleX)) / 2,
+  //       top: imageObj.top + (imageObj.height * (scaleY - newScaleY)) / 2,
+  //     });
+
+  //     canvas.renderAll(); // Re-render canvas
+  //   }
+  // };
+  const addImage = () => {
+    setIsZoomed(!isZoomed);
+    FabricImage.fromURL(uploadedUrl?.location).then((img) => {
+      const canvasWidth = canvas.getWidth();
+      const canvasHeight = canvas.getHeight();
+      const initialScale = zoomValue / 100; // Convert initial slider value to scale
+
+      img.set({
+        left: canvasWidth / 2 - (img.width * initialScale) / 2,
+        top: canvasHeight / 2 - (img.height * initialScale) / 2,
+        scaleX: initialScale,
+        scaleY: initialScale,
+        lockMovementX: true,
+        lockMovementY: true,
+        hasControls: true,
+        hasBorders: false,
+        lockRotation: true,
+        selectable: false,
+      });
+      img.controls.deleteControl = deleteControl;
+      canvas.add(img);
+      canvas.setActiveObject(img);
+      setImageObj(img);
+    });
+  };
+
+  const handleZoom = (value) => {
+    setZoomValue(value);
+    if (imageObj) {
+      const scale = value / 100; // Convert slider value to scale (40-100mm to 0.4-1.0 scale)
+
+      // Calculate new position to maintain centering
+      const deltaX = (imageObj.width * (scale - imageObj.scaleX)) / 2;
+      const deltaY = (imageObj.height * (scale - imageObj.scaleY)) / 2;
+
+      imageObj.set({
+        scaleX: scale,
+        scaleY: scale,
+        left: imageObj.left - deltaX,
+        top: imageObj.top - deltaY,
+      });
+
+      canvas.renderAll();
+    }
+  };
+
+  // Handle clicks outside the canvas
+  const handleOutsideClick = (event) => {
+    const canvasContainer = canvas.wrapperEl;
+    if (!canvasContainer.contains(event.target)) {
+      canvas.discardActiveObject();
+      canvas.renderAll();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [canvas]);
   return (
     <>
       <Modal
@@ -456,12 +619,20 @@ const CustomizationModal = ({ show, setShow }) => {
                   </div>
                 </div>
                 <div className="col-lg-7">
-                  <div className="right-chest-full">
-                    <img src={RightBigChest} alt="" />
-                    <TShirtCanvas logoUrl={uploadedUrl?.location} />
-                    {/* <ReactangleCanvas /> */}
-                  </div>
-                  <div className="range-area">
+                  <motion.div className="right-chest-full">
+                    <motion.img
+                      src={RightBigChest}
+                      alt="Zoomable"
+                      initial={{ scale: 1 }}
+                      animate={{ scale: isZoomed ? 1.7 : 1 }}
+                      transition={{ duration: 0.5 }}
+                      style={{ width: "100%", height: "auto" }}
+                    />
+                    <motion.div className="logoPosition">
+                      <canvas id="canvasId" ref={canvasRef} />
+                    </motion.div>
+                  </motion.div>
+                  {/* <div className="range-area">
                     <p>
                       Logo Width <span>(Select Logo Size)</span>
                     </p>
@@ -486,6 +657,37 @@ const CustomizationModal = ({ show, setShow }) => {
                           <p className="mb-2">100</p>
                         </div>
                         <Slider max={60} step={10} defaultValue={30} />
+                      </div>
+                      <div className="right-side">
+                        <p className="mb-0">Millimeters</p>
+                      </div>
+                    </div>
+                  </div> */}
+                  <div className="range-area">
+                    <p>
+                      Logo Width <span>(Select Logo Size)</span>
+                    </p>
+                    <div className="d-flex align-items-center">
+                      <div className="left-side d-flex flex-column">
+                        <div className="number-count line d-flex justify-content-between">
+                          {[...Array(7)].map((_, i) => (
+                            <p className="mb-0" key={i}></p>
+                          ))}
+                        </div>
+                        <div className="number-count d-flex justify-content-between">
+                          {[40, 50, 60, 70, 80, 90, 100].map((num) => (
+                            <p className="mb-2" key={num}>
+                              {num}
+                            </p>
+                          ))}
+                        </div>
+                        <Slider
+                          max={100}
+                          min={40}
+                          step={10}
+                          value={zoomValue}
+                          onChange={handleZoom}
+                        />
                       </div>
                       <div className="right-side">
                         <p className="mb-0">Millimeters</p>
@@ -529,18 +731,17 @@ const CustomizationModal = ({ show, setShow }) => {
                         <p className="mb-1">Recent Logos</p>
                         <div className="fixed-height">
                           <img src={uploadedUrl?.location} alt="" />
-                          {/* <img src={LogoBlack} alt="" />
-                          <img src={LogoRed} alt="" />
-                          <img src={LogoBlack} alt="" />
-                          <img src={LogoRed} alt="" />
-                          <img src={LogoBlack} alt="" />
-                          <img src={LogoRed} alt="" />
-                          <img src={LogoBlack} alt="" />
-                          <img src={LogoRed} alt="" />
-                          <img src={LogoBlack} alt="" />
-                          <img src={LogoRed} alt="" />
-                          <img src={LogoBlack} alt="" /> */}
                         </div>
+                        {uploadedUrl?.location && (
+                          <div className="imageAddbuttonSec mt-2">
+                            <button
+                              onClick={addImage}
+                              className="imageAddbutton"
+                            >
+                              add
+                            </button>
+                          </div>
+                        )}
                       </div>
                       {/* <div className="btn-area">
                         <button

@@ -14,11 +14,11 @@
   padding: 5px 40px;
   border-radius: 20px;
 }
-.imageAddbuttonSec {
+/* .imageAddbuttonSec {
   position: absolute;
-  right: -400px;
+  right: -445px;
   z-index: 1;
-}
+} */
 .zoomButtonsSec {
   display: flex;
   align-items: center;

@@ -82,3 +82,123 @@ const RectangleCanvas = () => {
 };
 
 export default RectangleCanvas;
+
+// import React, { useEffect, useRef, useState } from "react";
+// import { Canvas, FabricImage, util } from "fabric";
+// import Slider from "rc-slider";
+// import "rc-slider/assets/index.css";
+
+// const TShirtCaanvas = ({ logoUrl }) => {
+//   const canvasRef = useRef(null);
+//   const [canvas, setCanvas] = useState(null);
+//   const [imageObj, setImageObj] = useState(null);
+//   const [zoomValue, setZoomValue] = useState(50); // Default zoom value (in millimeters)
+
+//   useEffect(() => {
+//     if (canvasRef.current) {
+//       const initCanvas = new Canvas(canvasRef.current, {
+//         width: 300,
+//         height: 300,
+//       });
+//       initCanvas.renderAll();
+//       setCanvas(initCanvas);
+
+//       return () => {
+//         initCanvas.dispose();
+//       };
+//     }
+//   }, []);
+
+//   const addImage = () => {
+//     FabricImage.fromURL(
+//       "https://media-container-yeasitech.s3.amazonaws.com/test/customTshirtLogo/1685442081278-Copy(2).png"
+//     ).then((img) => {
+//       const canvasWidth = canvas.getWidth();
+//       const canvasHeight = canvas.getHeight();
+//       const initialScale = zoomValue / 100; // Convert initial slider value to scale
+
+//       img.set({
+//         left: canvasWidth / 2 - (img.width * initialScale) / 2,
+//         top: canvasHeight / 2 - (img.height * initialScale) / 2,
+//         scaleX: initialScale,
+//         scaleY: initialScale,
+//         lockMovementX: true,
+//         lockMovementY: true,
+//         hasControls: true,
+//         hasBorders: false,
+//         lockRotation: true,
+//         selectable: false,
+//       });
+
+//       canvas.add(img);
+//       canvas.setActiveObject(img);
+//       setImageObj(img);
+//     });
+//   };
+
+//   const handleZoom = (value) => {
+//     setZoomValue(value); // Update zoom value state
+//     if (imageObj) {
+//       const scale = value / 100; // Convert slider value to scale (40-100mm to 0.4-1.0 scale)
+
+//       // Calculate new position to maintain centering
+//       const deltaX = (imageObj.width * (scale - imageObj.scaleX)) / 2;
+//       const deltaY = (imageObj.height * (scale - imageObj.scaleY)) / 2;
+
+//       imageObj.set({
+//         scaleX: scale,
+//         scaleY: scale,
+//         left: imageObj.left - deltaX,
+//         top: imageObj.top - deltaY,
+//       });
+
+//       canvas.renderAll();
+//     }
+//   };
+
+//   return (
+//     <>
+//       <div className="logoPosition">
+//         <canvas id="canvasId" ref={canvasRef} />
+//       </div>
+//       <div className="imageAddbuttonSec">
+//         <button onClick={addImage} className="imageAddbutton">
+//           Add Logo
+//         </button>
+//         <div className="range-area">
+//           <p>
+//             Logo Width <span>(Select Logo Size)</span>
+//           </p>
+//           <div className="d-flex align-items-center">
+//             <div className="left-side d-flex flex-column">
+//               <div className="number-count line d-flex justify-content-between">
+//                 {[...Array(7)].map((_, i) => (
+//                   <p className="mb-0" key={i}></p>
+//                 ))}
+//               </div>
+//               <div className="number-count d-flex justify-content-between">
+//                 {[40, 50, 60, 70, 80, 90, 100].map((num) => (
+//                   <p className="mb-2" key={num}>
+//                     {num}
+//                   </p>
+//                 ))}
+//               </div>
+//               <Slider
+//                 max={100}
+//                 min={40}
+//                 step={10}
+//                 value={zoomValue}
+//                 onChange={handleZoom}
+//               />
+//             </div>
+//             <div className="right-side">
+//               <p className="mb-0">Millimeters</p>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </>
+//   );
+// };
+
+// export default TShirtCaanvas;

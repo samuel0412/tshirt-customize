@@ -338,6 +338,7 @@ p {
         border-top-right-radius: 20px;
         border-bottom-right-radius: 20px;
         position: relative;
+        overflow: hidden;
 
         img.position-img {
           position: absolute;
