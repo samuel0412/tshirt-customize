@@ -1,0 +1,26 @@
+:root {
+  --lightBg: #fbfbfb;
+  --lightBorder: #dadbdd80;
+  --bgGray: #eeeeee;
+  --deepBgGray: #cfcfcfd6;
+  --bgWhite: #fff;
+  --bgBlack: #000;
+}
+
+.imageAddbutton {
+  background-color: var(--bgBlack);
+  color: var(--bgWhite);
+  border: none;
+  padding: 5px 40px;
+  border-radius: 20px;
+}
+.imageAddbuttonSec {
+  position: absolute;
+  right: -400px;
+  z-index: 1;
+}
+.zoomButtonsSec {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
