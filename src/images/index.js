@@ -14,8 +14,9 @@ import LogoBlack from "./logo-black.png";
 import BigRedLogo from "./logo-red-big.png";
 import BgRemove from "./bg-remove.png";
 import RightBigChest from "./right-chest-big.png";
-import RightSleeveBig from "./right-sleeve-big.png";
+import RightSleeveBig from "./right_sleeve.png";
 import BackBig from "./back-big.png";
+import leftSleeve from "./left_sleeve.png";
 
 export {
   PrintImg,
@@ -36,4 +37,5 @@ export {
   RightBigChest,
   RightSleeveBig,
   BackBig,
+  leftSleeve,
 };

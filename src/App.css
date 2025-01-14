@@ -33,7 +33,11 @@ p {
   .modal-dialog {
     max-width: 1000px;
   }
-
+  .activeChest {
+    background-color: var(--bgBlack) !important;
+    color: var(--bgWhite);
+    transition: background-color 0.9s ease-in-out;
+  }
   .modal-content {
     background: var(--lightBg);
     border-radius: 15px;
