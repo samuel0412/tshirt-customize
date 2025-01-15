@@ -37,6 +37,7 @@ const CustomizationModal = ({ show, setShow }) => {
   const [uploadLoader, setUploadLoader] = useState(false);
   const [uploadedUrl, setupLoadedUrl] = useState({});
   const [isZoomed, setIsZoomed] = useState(false);
+  console.log("..........isZoomed", isZoomed);
   const canvasSleeveTypeRef = useRef(null);
   const canvasBackTypeRef = useRef(null);
   const canvasRef = useRef(null);
@@ -54,6 +55,7 @@ const CustomizationModal = ({ show, setShow }) => {
   const nextStep = () => {
     setStep(step + 1);
     setZoomValue(50);
+    setIsZoomed(false);
   };
   const baseStyle = {
     flex: 1,
@@ -129,8 +131,8 @@ const CustomizationModal = ({ show, setShow }) => {
     }
     if (canvasSleeveTypeRef.current) {
       const initCanvasSleeve = new Canvas(canvasSleeveTypeRef.current, {
-        width: 80,
-        height: 80,
+        width: 100,
+        height: 100,
       });
       initCanvasSleeve.renderAll();
       setCanvasSleeveType(initCanvasSleeve);
@@ -165,8 +167,8 @@ const CustomizationModal = ({ show, setShow }) => {
         top: canvasHeight / 2 - (img.height * initialScale) / 2,
         scaleX: initialScale,
         scaleY: initialScale,
-        lockMovementX: true,
-        lockMovementY: true,
+        lockMovementX: false,
+        lockMovementY: false,
         hasControls: true,
         hasBorders: false,
         lockRotation: true,
@@ -321,13 +323,15 @@ const CustomizationModal = ({ show, setShow }) => {
     };
   }, [canvas]);
 
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [logoType, setLogoType] = useState("");
   const nextPhaseHandler = () => {
+    setIsZoomed(false);
     const validations = [
       { value: chestType, message: "Please select chest type" },
       { value: sleeveType, message: "Please select sleeve type" },
       { value: backType, message: "Please select back type" },
     ];
-
     const invalid = validations.find(({ value }) => value === "");
     if (invalid) {
       toast.error(invalid.message);
@@ -418,11 +422,21 @@ const CustomizationModal = ({ show, setShow }) => {
                   <div className="select-by-one-area">
                     <h4>Select Logo Type</h4>
                     <div className="select-logo-type">
-                      <button>
+                      <button
+                        onClick={() => setLogoType("print")}
+                        className={`select-btn ${
+                          logoType === "print" ? "activeLogoType" : ""
+                        }`}
+                      >
                         <img src={PrintImg} alt="" />
                         <h6 className="mb-0">Print</h6>
                       </button>
-                      <button>
+                      <button
+                        onClick={() => setLogoType("embroidery")}
+                        className={`select-btn ${
+                          logoType === "embroidery" ? "activeLogoType" : ""
+                        }`}
+                      >
                         <img src={EmbroideryImg} alt="" />
                         <h6 className="mb-0">Embroidery</h6>
                       </button>
@@ -569,7 +583,12 @@ const CustomizationModal = ({ show, setShow }) => {
                       transition={{ duration: 0.5 }}
                       style={{ width: "100%", height: "auto" }}
                     />
-                    <motion.div className="logoPosition">
+                    <motion.div
+                      className="logoPosition"
+                      initial={{ scale: 1 }}
+                      animate={{ scale: isZoomed ? 1.7 : 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
                       <canvas id="canvasId" ref={canvasRef} />
                     </motion.div>
                   </motion.div>
@@ -646,8 +665,20 @@ const CustomizationModal = ({ show, setShow }) => {
                       <button className="select-place mb-3">
                         <h5>Chest</h5>
                         <div className="d-flex justify-content-between">
-                          <button className="select-btn">Left Chest</button>
-                          <button className="select-btn">Right Chest</button>
+                          <button
+                            className={`select-btn ${
+                              chestType === "left_chest" ? "activeChest" : ""
+                            }`}
+                          >
+                            Left Chest
+                          </button>
+                          <button
+                            className={`select-btn ${
+                              chestType === "right_chest" ? "activeChest" : ""
+                            }`}
+                          >
+                            Right Chest
+                          </button>
                         </div>
                       </button>
                       <p className="mb-2">
@@ -679,7 +710,7 @@ const CustomizationModal = ({ show, setShow }) => {
                               onClick={addImage}
                               className="imageAddbutton"
                             >
-                              add
+                              Add
                             </button>
                           </div>
                         )}
@@ -759,6 +790,9 @@ const CustomizationModal = ({ show, setShow }) => {
                         top: sleeveType === "left_sleeve" && "43%",
                         left: sleeveType === "left_sleeve" && "45%",
                       }}
+                      initial={{ scale: 1 }}
+                      animate={{ scale: isZoomed ? 1.7 : 1 }}
+                      transition={{ duration: 0.5 }}
                     >
                       <canvas id="canvasIdSleeve" ref={canvasSleeveTypeRef} />
                     </motion.div>
@@ -801,13 +835,13 @@ const CustomizationModal = ({ show, setShow }) => {
                     <div className="select-by-one-area upload-area">
                       <div className="select-location d-flex align-items-center gap-2">
                         <img src={SmallTShirt} alt="" />
-                        <p className="mb-0">Select Location 1</p>
+                        <p className="mb-0">Select Location 2</p>
                       </div>
                       <button className="select-place mb-3">
-                        <h5>Chest</h5>
+                        <h5> Sleeve</h5>
                         <div className="d-flex justify-content-between">
-                          <button className="select-btn">Left Chest</button>
-                          <button className="select-btn">Right Chest</button>
+                          <button className="select-btn">Left sleeve</button>
+                          <button className="select-btn">Right sleeve</button>
                         </div>
                       </button>
                       <p className="mb-2">
@@ -839,7 +873,7 @@ const CustomizationModal = ({ show, setShow }) => {
                               onClick={addImageSleeve}
                               className="imageAddbutton"
                             >
-                              add
+                              Add
                             </button>
                           </div>
                         )}
@@ -1191,7 +1225,12 @@ const CustomizationModal = ({ show, setShow }) => {
                       transition={{ duration: 0.5 }}
                       style={{ width: "100%", height: "auto" }}
                     />
-                    <motion.div className="logoPosition">
+                    <motion.div
+                      className="logoPosition"
+                      initial={{ scale: 1 }}
+                      animate={{ scale: isZoomed ? 1.7 : 1 }}
+                      transition={{ duration: 0.5 }}
+                    >
                       <canvas id="canvasBackTyp" ref={canvasBackTypeRef} />
                     </motion.div>
                   </motion.div>
@@ -1233,13 +1272,14 @@ const CustomizationModal = ({ show, setShow }) => {
                     <div className="select-by-one-area upload-area">
                       <div className="select-location d-flex align-items-center gap-2">
                         <img src={SmallTShirt} alt="" />
-                        <p className="mb-0">Select Location 1</p>
+                        <p className="mb-0">Select Location 3</p>
                       </div>
                       <button className="select-place mb-3">
-                        <h5>Chest</h5>
+                        <h5>Back </h5>
                         <div className="d-flex justify-content-between">
-                          <button className="select-btn">Left Chest</button>
-                          <button className="select-btn">Right Chest</button>
+                          <button className="select-btn">
+                            Shoulder Blades
+                          </button>
                         </div>
                       </button>
                       <p className="mb-2">
@@ -1271,7 +1311,7 @@ const CustomizationModal = ({ show, setShow }) => {
                               onClick={addImageBack}
                               className="imageAddbutton"
                             >
-                              add
+                              Add
                             </button>
                           </div>
                         )}
